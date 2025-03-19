@@ -44,8 +44,8 @@ class UserController extends Controller
         return response()->json([
             'token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60, 
-            'usuario' => Auth::user()
+            'expires_in' => JWTAuth::factory()->getTTL() * 60,
+            'user' => Auth::user()
         ]);
     }
 
@@ -55,4 +55,9 @@ class UserController extends Controller
         return response()->json(['message' => 'Logged out successfully']);
     }
 
+    public function index(Request $request)
+    {
+        $users = User::all();
+        return response()->json(['users' => $users]);
+    }
 }

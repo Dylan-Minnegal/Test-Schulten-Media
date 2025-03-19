@@ -6,24 +6,26 @@ use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\TasksController;
 use App\Http\Controllers\UserController;
 
-
 Route::get('/projects', [ProjectsController::class, 'index']);
-Route::post('/projects', [ProjectsController::class, 'store']);
-Route::get('/projects/{id}', [ProjectsController::class, 'show']);
-Route::put('/projects/{id}', [ProjectsController::class, 'update']);
-Route::delete('/projects/{id}', [ProjectsController::class, 'destroy']);
-
 Route::get('/tasks/{projectId}', [TasksController::class, 'index']);
-Route::post('/tasks/{projectId}', [TasksController::class, 'store']);
-Route::get('/tasks/{projectId}/{taskId}', [TasksController::class, 'show']);  
-Route::put('/tasks/{projectId}/{taskId}', [TasksController::class, 'update']);  
-Route::delete('/tasks/{projectId}/{taskId}', [TasksController::class, 'destroy']);  
+Route::get('/tasks/{projectId}/{taskId}', [TasksController::class, 'show']);
+Route::get('/projects/{id}', [ProjectsController::class, 'show']);
 
-
-
-Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
-Route::post('/logout', [UserController::class, 'logout']);
+Route::post('/register', [UserController::class, 'register']);
 
+Route::middleware(['auth:api', 'admin'])->group(function () {
+    Route::get('/users', [UserController::class, 'index']);
 
+    Route::post('/projects', [ProjectsController::class, 'store']);
+    Route::put('/projects/{id}', [ProjectsController::class, 'update']);
+    Route::delete('/projects/{id}', [ProjectsController::class, 'destroy']);
 
+    Route::post('/tasks/{projectId}', [TasksController::class, 'store']);
+    Route::put('/tasks/{projectId}/{taskId}', [TasksController::class, 'update']);
+    Route::delete('/tasks/{projectId}/{taskId}', [TasksController::class, 'destroy']);
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::post('/logout', [UserController::class, 'logout']);
+});
