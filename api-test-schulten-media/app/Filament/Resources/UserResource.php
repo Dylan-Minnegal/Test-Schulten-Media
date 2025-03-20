@@ -13,6 +13,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\PasswordInput;
 use Filament\Forms\Components\Select;
+use Illuminate\Support\Facades\Hash;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class UserResource extends Resource
 {
@@ -37,19 +41,20 @@ class UserResource extends Resource
 
                 TextInput::make('password')
                     ->label('Password')
-                    ->required()
                     ->password()
-                    ->minLength(6)
-                    ->confirmed(),
+                    ->maxLength(255)
+                    ->dehydrateStateUsing(fn($state) => $state ? \Illuminate\Support\Facades\Hash::make($state) : null)
+                    ->dehydrated(fn($state) => filled($state))
+                    ->nullable(),
 
                 TextInput::make('password_confirmation')
                     ->label('Confirm Password')
-                    ->required()
-                    ->same('password') 
-                    ->minLength(6),
+                    ->password()
+                    ->maxLength(255)
+                    ->dehydrated(false),
 
                 Select::make('rol')
-                    ->label('Rol')
+                    ->label('Role')
                     ->options([
                         'user' => 'User',
                         'admin' => 'Admin',
@@ -57,6 +62,7 @@ class UserResource extends Resource
                     ->required(),
             ]);
     }
+
 
     public static function table(Table $table): Table
     {
@@ -66,6 +72,7 @@ class UserResource extends Resource
                 TextColumn::make('name')->label('Name'),
                 TextColumn::make('email')->label('Email'),
                 TextColumn::make('rol')->label('Role'),
+                TextColumn::make('created_at')->label('Creation Date')->dateTime(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -73,6 +80,44 @@ class UserResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
+            ])
+            ->filters([
+                Filter::make('name')
+                    ->label('Search by name')
+                    ->form([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Enter name')
+                            ->placeholder('Enter name to search')
+                    ])
+                    ->query(
+                        fn(Builder $query, array $data) =>
+                        $query->when($data['name'], fn($q) => $q->where('name', 'like', "%{$data['name']}%"))
+                    ),
+
+                Filter::make('description')
+                    ->label('Search by Description')
+                    ->form([
+                        Forms\Components\TextInput::make('description')
+                            ->label('Enter description')
+                            ->placeholder('Enter description to search')
+                    ])
+                    ->query(
+                        fn(Builder $query, array $data) =>
+                        $query->when($data['description'], fn($q) => $q->where('description', 'like', "%{$data['description']}%"))
+                    ),
+
+                Filter::make('created_at')
+                    ->label('Filter by Date')
+                    ->form([
+                        Forms\Components\DatePicker::make('created_from')->label('From'),
+                        Forms\Components\DatePicker::make('created_until')->label('Until'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['created_from'], fn($q) => $q->whereDate('created_at', '>=', $data['created_from']))
+                            ->when($data['created_until'], fn($q) => $q->whereDate('created_at', '<=', $data['created_until']));
+                    }),
+
             ]);
     }
 

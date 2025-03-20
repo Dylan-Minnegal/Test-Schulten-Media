@@ -17,6 +17,10 @@ use Filament\Tables\Columns\BooleanColumn;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+
+
 
 class TaskResource extends Resource
 {
@@ -59,9 +63,63 @@ class TaskResource extends Resource
                 TextColumn::make('description')->label('Description'),
                 TextColumn::make('project.name')->label('Project')->sortable(),
                 BooleanColumn::make('completed')->label('Completed')->sortable(),
+                TextColumn::make('created_at')->label('Creation Date')->dateTime(),
             ])
             ->filters([
-                // Puedes agregar filtros si es necesario
+                Filter::make('title')
+                    ->label('Search by title')
+                    ->form([
+                        Forms\Components\TextInput::make('title')
+                            ->label('Enter title')
+                            ->placeholder('Enter title to search')
+                    ])
+                    ->query(
+                        fn(Builder $query, array $data) =>
+                        $query->when($data['title'], fn($q) => $q->where('title', 'like', "%{$data['title']}%"))
+                    ),
+
+                Filter::make('description')
+                    ->label('Search by Description')
+                    ->form([
+                        Forms\Components\TextInput::make('description')
+                            ->label('Enter description')
+                            ->placeholder('Enter description to search')
+                    ])
+                    ->query(
+                        fn(Builder $query, array $data) =>
+                        $query->when($data['description'], fn($q) => $q->where('description', 'like', "%{$data['description']}%"))
+                    ),
+                Filter::make('completed')
+                    ->label('Task Status')
+                    ->form([
+                        Forms\Components\Select::make('completed')
+                            ->label('Select status')
+                            ->options([
+                                '1' => 'Completed',
+                                '0' => 'Pending',
+                            ])
+                            ->placeholder('Select status')
+                    ])
+                    ->query(
+                        fn(Builder $query, array $data) =>
+                        $query->when(
+                            isset($data['completed']),
+                            fn($q) => $q->where('completed', $data['completed'])
+                        )
+                    ),
+
+                Filter::make('created_at')
+                    ->label('Filter by Date')
+                    ->form([
+                        Forms\Components\DatePicker::make('created_from')->label('From'),
+                        Forms\Components\DatePicker::make('created_until')->label('Until'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['created_from'], fn($q) => $q->whereDate('created_at', '>=', $data['created_from']))
+                            ->when($data['created_until'], fn($q) => $q->whereDate('created_at', '<=', $data['created_until']));
+                    }),
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
