@@ -1,0 +1,40 @@
+<div class="container mt-5">
+  <div class="mt-4 ml-auto" *ngIf="!isLoggedIn">
+    <a class="btn btn-primary m-1" routerLink="/login">Log In</a>
+  </div>
+
+  <div *ngIf="isLoggedIn">
+    <p>Welcome, {{ user?.name }}</p>
+    <a class="btn btn-danger m-1" (click)="logout()">Log Out</a>
+  </div>
+
+  <h1 class="text-center mb-4">Projects List</h1>
+
+  <div class="row">
+    <div *ngFor="let project of projects" class="col-md-4 mb-4">
+      <div class="card shadow-sm bg-light">
+        <div class="card-body">
+          <h2 class="card-title">{{ project.name }}</h2>
+          <p class="card-text">{{ project.description }}</p>
+          <p><strong>Created At:</strong> {{ project.created_at | date: 'short' }}</p>
+          <p><strong>Updated At:</strong> {{ project.updated_at | date: 'short' }}</p>
+
+          <div *ngIf="project.tasks.length > 0">
+            <h5>Tasks:</h5>
+            <ul cdkDropList class="list-group" (cdkDropListDropped)="drop($event, project)">
+              <li *ngFor="let task of project.tasks; let i = index" cdkDrag class="list-group-item">
+                <strong>{{ task.title }}</strong>
+                <p>{{ task.description }}</p>
+                <p><strong>Status:</strong> {{ task.completed ? 'Completed' : 'Pending' }}</p>
+              </li>
+            </ul>
+          </div>
+
+          <div *ngIf="project.tasks.length === 0">
+            <p class="text-muted">No tasks available for this project.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
