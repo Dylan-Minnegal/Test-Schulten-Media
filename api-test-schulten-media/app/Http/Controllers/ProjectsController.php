@@ -12,7 +12,7 @@ class ProjectsController extends Controller
 
     public function index()
     {
-        return Project::with('tasks')->get();
+        return Project::with('tasks.comments')->get();
     }
 
 

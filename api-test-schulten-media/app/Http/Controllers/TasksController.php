@@ -10,8 +10,8 @@ class TasksController extends Controller
 {
     public function index($projectId)
     {
-        $project = Project::findOrFail($projectId);  
-        return response()->json($project->tasks);  
+        $project = Project::findOrFail($projectId);
+        return response()->json($project->tasks);
     }
 
     public function store(Request $request, $projectId)
@@ -21,12 +21,12 @@ class TasksController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $project = Project::findOrFail($projectId);  
+        $project = Project::findOrFail($projectId);
 
         $task = $project->tasks()->create([
             'title' => $request->title,
             'description' => $request->description,
-            'completed' => false,  
+            'completed' => false,
         ]);
 
         return response()->json([
@@ -37,8 +37,8 @@ class TasksController extends Controller
 
     public function show($projectId, $taskId)
     {
-        $project = Project::findOrFail($projectId);  
-        $task = $project->tasks()->findOrFail($taskId);  
+        $project = Project::findOrFail($projectId);
+        $task = $project->tasks()->findOrFail($taskId);
 
         return response()->json($task);
     }
@@ -46,15 +46,16 @@ class TasksController extends Controller
     public function update(Request $request, $projectId, $taskId)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'string|max:255',
             'description' => 'nullable|string',
             'completed' => 'nullable|boolean',
+            'comment' => 'nullable|string',
         ]);
 
-        $project = Project::findOrFail($projectId);  
-        $task = $project->tasks()->findOrFail($taskId);  
+        $project = Project::findOrFail($projectId);
+        $task = $project->tasks()->findOrFail($taskId);
 
-        $task->update($request->only('title', 'description', 'completed'));
+        $task->update($request->only('title', 'description', 'completed', 'comment'));
 
         return response()->json([
             'message' => 'Task updated successfully!',
@@ -64,10 +65,10 @@ class TasksController extends Controller
 
     public function destroy($projectId, $taskId)
     {
-        $project = Project::findOrFail($projectId);  
+        $project = Project::findOrFail($projectId);
         $task = $project->tasks()->findOrFail($taskId);
 
-        $task->delete();  
+        $task->delete();
 
         return response()->json([
             'message' => 'Task deleted successfully!'

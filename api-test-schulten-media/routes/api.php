@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\TasksController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CommentController;
+
 
 Route::get('/projects', [ProjectsController::class, 'index']);
 Route::get('/tasks/{projectId}', [TasksController::class, 'index']);
@@ -28,4 +30,6 @@ Route::middleware(['auth:api', 'admin'])->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
+    Route::post('/tasks/{projectId}/{taskId}/comments', [CommentController::class, 'store']);
+
 });

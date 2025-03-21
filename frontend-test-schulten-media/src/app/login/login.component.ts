@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
+  errors: string = '';
+
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
@@ -37,6 +39,7 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/projects']);
         },
         (error) => {
+          this.errors = 'Invalid email or password. Please try again.';
           console.error('Error al hacer login:', error);
         }
       );

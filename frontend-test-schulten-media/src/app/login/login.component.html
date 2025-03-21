@@ -12,7 +12,11 @@
         <label for="password" class="form-label">Password</label>
         <input type="password" id="password" class="form-control" formControlName="password" required />
       </div>
-  
+      
+      <div *ngIf="errors" class="mb-3 alert alert-danger">
+        {{ errors }}
+      </div>
+
       <button type="submit" class="btn btn-primary w-100" [disabled]="loginForm.invalid">
         Login
       </button>

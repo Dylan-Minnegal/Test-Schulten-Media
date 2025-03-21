@@ -8,6 +8,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { FormsModule } from '@angular/forms';  
+
 
 
 @NgModule({
@@ -22,6 +24,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     HttpClientModule,
     ReactiveFormsModule,
     DragDropModule,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
